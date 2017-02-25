@@ -1,24 +1,28 @@
-//在Sales_data类中添加构造函数，编写一段程序使用每个构造函数
+#ifndef SALE_DATA_H
+#define SALE_DATA_H
 
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-struct Sales_data {
+class Sales_data {
+	friend istream & read(istream &is, Sales_data &s);
+	friend ostream & print(ostream &io, const Sales_data &s);
+
+private:
 	string bookNo;
 	unsigned units_sold = 0;
 	double revenue = 0;
+public:
 	Sales_data &combine(const Sales_data &anothers);
 	string isbn() const;
+	//类内成员函数默认inline，类外定义时加inline声明不用加
+	double avg_price() const { return revenue / units_sold; }
 
-	//构造函数
 	Sales_data() = default;
-	//这里的n和p都可以设为const类型
-	//Sales_data(const string &s, unsigned n, double p) :bookNo(s), units_sold(n), revenue(p*n) {}
 	Sales_data(const string &s, const unsigned n, const double p) :bookNo(s), units_sold(n), revenue(p*n) {}
-	Sales_data(const string &s):bookNo(s){}
-	//构造函数类内声明，类外定义
+	Sales_data(const string &s) :bookNo(s) {}
 	Sales_data(istream &is);
 };
 
@@ -41,8 +45,9 @@ Sales_data add(const Sales_data &s1, const Sales_data &s2)
 
 istream & read(istream &is, Sales_data &s)
 {
-	is >> s.bookNo >> s.units_sold;
-	s.revenue = 10 * s.units_sold;
+	double price = 0;
+	is >> s.bookNo >> s.units_sold >> price;
+	s.revenue = price*s.units_sold;
 	return is;
 }
 
@@ -59,13 +64,4 @@ Sales_data::Sales_data(istream &is)
 	revenue = price*units_sold;
 }
 
-int main()
-{
-	Sales_data s1, s2("123-123-123", 2, 10), s3("123-123-123"), s4(cin);
-	print(cout, s1) << endl;
-	print(cout, s2) << endl;
-	print(cout, s3) << endl;
-	print(cout, s4) << endl;
-
-	return 0;
-}
+#endif
